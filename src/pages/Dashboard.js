@@ -1,12 +1,39 @@
-import Sidebar from "../components/Sidebar";
-import { getCurrentUser } from "../utils/auth";
-import employees from "../utils/mockEmployees";
+import { useEffect, useState } from "react";
 import { Outlet, useOutlet } from "react-router-dom";
 
+import Sidebar from "../components/Sidebar";
+import { getEmployees } from "../api/employeeApi";
+import { useAuth } from "../context/AuthContext";
+
 function Dashboard({ onLogout }) {
-  const user = getCurrentUser();
-  const outlet = useOutlet(); // non-null when a nested route like /profile or /:id is active
-  const depts = [...new Set(employees.map((e) => e.department))];
+  const { user } = useAuth();
+  const outlet = useOutlet();
+  const [employees, setEmployees] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadEmployees() {
+      try {
+        setIsLoading(true);
+        const data = await getEmployees();
+        setEmployees(data);
+        setError("");
+      } catch (apiError) {
+        setError(apiError.response?.data?.message || "Unable to load dashboard data");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadEmployees();
+  }, []);
+
+  const departments = [...new Set(employees.map((employee) => employee.department))];
+  const activeEmployees = employees.filter((employee) => employee.status === "Active").length;
+  const averageTeamSize = departments.length
+    ? (employees.length / departments.length).toFixed(1)
+    : "0.0";
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
 
@@ -15,7 +42,6 @@ function Dashboard({ onLogout }) {
       <Sidebar onLogout={onLogout} />
 
       <div className="main-content">
-        {/* Only show overview when exactly at /dashboard (no nested route active) */}
         {!outlet && (
           <>
             <div className="page-header">
@@ -25,35 +51,41 @@ function Dashboard({ onLogout }) {
               <p>Here's your company overview</p>
             </div>
 
+            {error && <div className="feedback-banner error">{error}</div>}
+            {isLoading && <div className="feedback-banner">Loading dashboard data...</div>}
+
             <div className="stat-grid">
               <div className="stat-card">
                 <div className="label">Total Employees</div>
                 <div className="value">{employees.length}</div>
-                <div className="sub">↑ 2 this quarter</div>
+                <div className="sub">Live records from the backend</div>
               </div>
 
               <div className="stat-card">
                 <div className="label">Departments</div>
-                <div className="value">{depts.length}</div>
-                <div className="sub">{depts.join(", ")}</div>
+                <div className="value">{departments.length}</div>
+                <div className="sub">
+                  {departments.length ? departments.join(", ") : "No departments yet"}
+                </div>
               </div>
 
               <div className="stat-card">
-                <div className="label">Open Positions</div>
-                <div className="value">3</div>
-                <div className="sub">2 in Technology</div>
+                <div className="label">Active Employees</div>
+                <div className="value">{activeEmployees}</div>
+                <div className="sub">
+                  {employees.length - activeEmployees} not currently active
+                </div>
               </div>
 
               <div className="stat-card">
-                <div className="label">Avg. Tenure</div>
-                <div className="value">2.4y</div>
-                <div className="sub">↑ 0.3y YoY</div>
+                <div className="label">Avg. Team Size</div>
+                <div className="value">{averageTeamSize}</div>
+                <div className="sub">Employees per department</div>
               </div>
             </div>
           </>
         )}
 
-        {/* Nested route content renders here (/dashboard/profile or /dashboard/:id) */}
         <Outlet />
       </div>
     </div>
@@ -61,4 +93,3 @@ function Dashboard({ onLogout }) {
 }
 
 export default Dashboard;
-

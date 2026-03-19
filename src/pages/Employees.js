@@ -79,6 +79,7 @@ function Employees({ onLogout }) {
       role: employee.role,
       department: employee.department,
       status: employee.status,
+      password: "",
     });
     setError("");
   }

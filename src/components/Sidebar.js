@@ -1,10 +1,10 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { getCurrentUser } from "../utils/auth";
+import { useAuth } from "../context/AuthContext";
 
 function Sidebar({ onLogout }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const user = getCurrentUser();
+  const { user } = useAuth();
 
   const initials = user?.name
     ? user.name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2)
@@ -12,12 +12,15 @@ function Sidebar({ onLogout }) {
 
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: "◈" },
-    { path: "/employees", label: "Employees", icon: "◎" },
     { path: "/reports", label: "Reports", icon: "▤" },
-    { path: "/audit", label: "Audit Log", icon: "⛉" },
     { path: "/dashboard/profile", label: "Profile", icon: "◉" },
     { path: "/settings", label: "Settings", icon: "⚙" },
   ];
+  const adminItems = [
+    { path: "/employees", label: "Employees", icon: "◎" },
+    { path: "/audit", label: "Audit Log", icon: "⛉" },
+  ];
+  const visibleItems = user?.role === "admin" ? [...navItems.slice(0, 1), ...adminItems, ...navItems.slice(1)] : navItems;
 
   return (
     <div className="sidebar">
@@ -25,7 +28,7 @@ function Sidebar({ onLogout }) {
       <div className="sidebar-tagline">Management System</div>
 
       <ul className="sidebar-nav">
-        {navItems.map((item) => (
+        {visibleItems.map((item) => (
           <li key={item.path}>
             <Link
               to={item.path}

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/login.css";
-import { registerUser } from "../utils/auth";
 import PasswordInput from "../components/PasswordInput";
+import { register } from "../api/authApi";
 
 const CheckIcon = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
@@ -68,15 +68,25 @@ function Register() {
     setLoading(true);
     setError("");
 
-    const result = await registerUser(name.trim(), email, password);
+    let result;
+
+    try {
+      result = await register({
+        name: name.trim(),
+        email,
+        password,
+      });
+    } catch (apiError) {
+      setLoading(false);
+      setError(apiError.response?.data?.message || "Failed to create account.");
+      return;
+    }
 
     setLoading(false);
 
-    if (result.success) {
+    if (result.user) {
       setSuccess("Account created! Redirecting to login...");
       setTimeout(() => navigate("/"), 1500);
-    } else if (result.reason === "email_taken") {
-      setError("An account with this email already exists.");
     }
   };
 

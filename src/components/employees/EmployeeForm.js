@@ -4,6 +4,7 @@ const initialForm = {
   role: "",
   department: "",
   status: "Active",
+  password: "",
 };
 
 function EmployeeForm({
@@ -21,7 +22,11 @@ function EmployeeForm({
       <div className="employee-panel-header">
         <div>
           <h3>{isEditing ? "Update Employee" : "Add Employee"}</h3>
-          <p>{isEditing ? "Edit the selected employee record." : "Create a new employee record in MongoDB."}</p>
+          <p>
+            {isEditing
+              ? "Edit the selected employee record and optionally reset the login password."
+              : "Create a new employee record and employee login account."}
+          </p>
         </div>
       </div>
 
@@ -37,12 +42,18 @@ function EmployeeForm({
               </select>
             ) : (
               <input
-                type={field === "email" ? "email" : "text"}
+                type={field === "email" ? "email" : field === "password" ? "password" : "text"}
                 name={field}
                 value={formData[field]}
                 onChange={onChange}
-                placeholder={`Enter ${field}`}
-                required
+                placeholder={
+                  field === "password"
+                    ? isEditing
+                      ? "Leave blank to keep current password"
+                      : "Create employee login password"
+                    : `Enter ${field}`
+                }
+                required={field === "password" ? !isEditing : true}
               />
             )}
           </label>

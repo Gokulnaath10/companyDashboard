@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/login.css";
-import { loginUser } from "../utils/auth";
 import PasswordInput from "../components/PasswordInput";
+import { useAuth } from "../context/AuthContext";
 
 function Login({ onLoginSuccess }) {
 const navigate = useNavigate();
+const { login } = useAuth();
 const [email, setEmail] = useState("");
 const [password, setPassword] = useState("");
 const [error, setError] = useState("");
@@ -16,19 +17,18 @@ e.preventDefault();
 setError("");
 
 setLoading(true);
-const result = await loginUser(email, password);
-setLoading(false);
+try {
+  await login(email, password);
+  setLoading(false);
 
-if (result.success) {
   if (onLoginSuccess) {
     onLoginSuccess();
   } else {
     navigate("/dashboard");
   }
-} else if (result.reason === "not_found") {
-  setError("This email is not registered. Please create an account first.");
-} else {
-  setError("Incorrect password.");
+} catch (apiError) {
+  setLoading(false);
+  setError(apiError.response?.data?.message || "Incorrect email or password.");
 }
 };
 

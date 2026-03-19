@@ -1,27 +1,32 @@
-import { useState } from "react";
-import { getCurrentUser } from "../utils/auth";
+import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { updateProfile } from "../api/userApi";
 
 // Profile is a nested route inside Dashboard 
 function Profile() {
-  const user = getCurrentUser();
+  const { user, refreshUser } = useAuth();
 
   const [name, setName] = useState(user?.name || "");
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSave = () => {
+  useEffect(() => {
+    setName(user?.name || "");
+  }, [user]);
+
+  const handleSave = async () => {
     const trimmedName = name.trim();// to remove space from the begin and end
     if (!trimmedName) return;
 
-    const updatedUser = {
-      ...user,
-      name: trimmedName,
-    };
-
-    localStorage.setItem("currentUser", JSON.stringify(updatedUser));
-    localStorage.setItem("user_" + user.email, JSON.stringify(updatedUser));
-
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);//to set setsaved as false after 2sec
+    try {
+      await updateProfile({ name: trimmedName });
+      await refreshUser();
+      setError("");
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);//to set setsaved as false after 2sec
+    } catch (apiError) {
+      setError(apiError.response?.data?.message || "Failed to update profile");
+    }
   };
 
   const initials = (user?.name || "U")
@@ -81,6 +86,12 @@ function Profile() {
         {saved && (
           <div className="alert-box success">
             ✓ Profile updated
+          </div>
+        )}
+
+        {error && (
+          <div className="alert-box error">
+            {error}
           </div>
         )}
 

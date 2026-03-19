@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Sidebar from "../components/Sidebar";
-import { getCurrentUser, changePassword } from "../utils/auth";
 import PasswordInput from "../components/PasswordInput";
+import { useAuth } from "../context/AuthContext";
+import { changePassword } from "../api/userApi";
 const CheckIcon = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
     <polyline points="20 6 9 17 4 12" />
@@ -14,7 +15,7 @@ const XIcon = () => (
   </svg>
 );
 function Settings({ theme, onToggleTheme, onLogout }) {
-  const user = getCurrentUser();
+  const { user } = useAuth();
   const isDark = theme === "dark";
   const [oldPw, setOldPw] = useState("");
   const [newPw, setNewPw] = useState("");
@@ -39,26 +40,31 @@ function Settings({ theme, onToggleTheme, onLogout }) {
     setLoading(true);
     setPwMsg({ type: "", text: "" });//to clr previous msg
 
-    const result = await changePassword(oldPw, newPw);
+    let result;
+
+    try {
+      result = await changePassword({
+        currentPassword: oldPw,
+        newPassword: newPw,
+      });
+    } catch (apiError) {
+      setLoading(false);
+      setPwMsg({
+        type: "error",
+        text: apiError.response?.data?.message || "Something went wrong.",
+      });
+      return;
+    }
 
     setLoading(false);
 
-    if (result.success) {
+    if (result.message) {
       setPwMsg({ type: "success", text: "Password changed successfully!" });
       setOldPw("");
       setNewPw("");
       setConfirmPw("");
       setPwTouched(false);
       setConfirmTouched(false);
-    } 
-    else if (result.reason === "wrong_password") {
-      setPwMsg({ type: "error", text: "Current password is incorrect." });
-    } 
-    else if (result.reason === "weak_password") {
-      setPwMsg({ type: "error", text: "New password does not meet security rules." });
-    } 
-    else {
-      setPwMsg({ type: "error", text: "Something went wrong." });
     }
   };
 

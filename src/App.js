@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 
 import Login from "./pages/Login";
@@ -10,22 +10,39 @@ import Settings from "./pages/Settings";
 import Audit from "./pages/Audit";
 import Profile from "./pages/Profile";
 import EmployeeDetails from "./pages/EmployeeDetails";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { updatePreferences } from "./api/userApi";
 
-import { isAuthenticated, logoutUser, getCurrentUser } from "./utils/auth";
+function ProtectedRoute({ children, roles }) {
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  if (isLoading) {
+    return <div className="auth-page"><div className="auth-card">Loading session...</div></div>;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (roles && !roles.includes(user?.role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+}
 
 function AppRoutes() {
   const navigate = useNavigate();
-
-  const [loggedIn, setLoggedIn] = useState(isAuthenticated());
+  const { isAuthenticated, user, logout, refreshUser } = useAuth();
   const [theme, setTheme] = useState("dark");
 
   useEffect(() => {
-    const user = getCurrentUser();
     if (user) {
-      const savedTheme = localStorage.getItem(`theme_${user.email}`) || "dark";
-      setTheme(savedTheme);
+      setTheme(user.preferences?.theme || "dark");
+    } else {
+      setTheme("dark");
     }
-  }, [loggedIn]);
+  }, [user]);
 
   useEffect(() => {
     if (theme === "light") {
@@ -35,49 +52,51 @@ function AppRoutes() {
     }
   }, [theme]);
 
-  const handleLogout = useCallback(() => {
-    logoutUser("manual");
-    setLoggedIn(false);
+  async function handleLogout() {
+    await logout();
     navigate("/");
-  }, [navigate]);
+  }
 
-  const handleLoginSuccess = () => {
-    setLoggedIn(true);
+  function handleLoginSuccess() {
     navigate("/dashboard");
-  };
+  }
 
-  const toggleTheme = () => {
-    const user = getCurrentUser();
+  async function toggleTheme() {
+    if (!user) {
+      return;
+    }
+
     const newTheme = theme === "dark" ? "light" : "dark";
-
     setTheme(newTheme);
 
-    if (user) {
-      localStorage.setItem(`theme_${user.email}`, newTheme);
+    try {
+      await updatePreferences({ theme: newTheme });
+      await refreshUser();
+    } catch (error) {
+      setTheme(user.preferences?.theme || "dark");
     }
-  };
-
-  const ProtectedRoute = ({ children }) => {
-    if (!loggedIn || !isAuthenticated()) {
-      return <Navigate to="/" replace />;
-    }
-    return children;
-  };
+  }
 
   return (
     <Routes>
       <Route
         path="/"
         element={
-          loggedIn && isAuthenticated()
+          isAuthenticated
             ? <Navigate to="/dashboard" replace />
             : <Login onLoginSuccess={handleLoginSuccess} />
         }
       />
 
-      <Route path="/register" element={<Register />} />
+      <Route
+        path="/register"
+        element={
+          isAuthenticated
+            ? <Navigate to="/dashboard" replace />
+            : <Register />
+        }
+      />
 
-      {/* Dashboard with nested routes */}
       <Route
         path="/dashboard"
         element={
@@ -108,7 +127,7 @@ function AppRoutes() {
       <Route
         path="/employees"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute roles={["admin"]}>
             <Employees onLogout={handleLogout} />
           </ProtectedRoute>
         }
@@ -126,7 +145,7 @@ function AppRoutes() {
       <Route
         path="/audit"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute roles={["admin"]}>
             <Audit onLogout={handleLogout} />
           </ProtectedRoute>
         }
@@ -145,7 +164,7 @@ function AppRoutes() {
         }
       />
 
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/"} />} />
     </Routes>
   );
 }
@@ -153,12 +172,11 @@ function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
-      <AppRoutes />
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
     </BrowserRouter>
   );
 }
 
 export default App;
-
-
-

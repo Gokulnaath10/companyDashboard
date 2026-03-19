@@ -1,30 +1,26 @@
-import axios from "axios";
-
-const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || "http://localhost:5000/api",
-});
+import apiClient from "./apiClient";
 
 export async function getEmployees() {
-  const response = await api.get("/employees");
+  const response = await apiClient.get("/employees");
   return response.data;
 }
 
 export async function getEmployee(id) {
-  const response = await api.get(`/employees/${id}`);
+  const response = await apiClient.get(`/employees/${id}`);
   return response.data;
 }
 
 export async function createEmployee(payload) {
-  const response = await api.post("/employees", payload);
+  const response = await apiClient.post("/employees", payload);
   return response.data;
 }
 
 export async function updateEmployee(id, payload) {
-  const response = await api.put(`/employees/${id}`, payload);
+  const response = await apiClient.put(`/employees/${id}`, payload);
   return response.data;
 }
 
 export async function deleteEmployee(id) {
-  const response = await api.delete(`/employees/${id}`);
+  const response = await apiClient.delete(`/employees/${id}`);
   return response.data;
 }
