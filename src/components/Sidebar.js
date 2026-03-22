@@ -12,6 +12,7 @@ function Sidebar({ onLogout }) {
 
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: "◈" },
+    { path: "/tasks", label: "Tasks", icon: "✓" },
     { path: "/reports", label: "Reports", icon: "▤" },
     { path: "/dashboard/profile", label: "Profile", icon: "◉" },
     { path: "/settings", label: "Settings", icon: "⚙" },

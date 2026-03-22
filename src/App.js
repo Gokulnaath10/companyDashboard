@@ -10,6 +10,7 @@ import Settings from "./pages/Settings";
 import Audit from "./pages/Audit";
 import Profile from "./pages/Profile";
 import EmployeeDetails from "./pages/EmployeeDetails";
+import Tasks from "./pages/Tasks";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { updatePreferences } from "./api/userApi";
 
@@ -138,6 +139,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Reports onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/tasks"
+        element={
+          <ProtectedRoute>
+            <Tasks onLogout={handleLogout} />
           </ProtectedRoute>
         }
       />

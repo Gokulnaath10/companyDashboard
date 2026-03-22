@@ -77,7 +77,7 @@ async function login(req, res) {
     }
 
     const token = generateToken(user._id.toString());
-    setAuthCookie(res, token);
+    setAuthCookie(req, res, token);
 
     await logAudit({
       action: "LOGIN_SUCCESS",
@@ -95,7 +95,8 @@ async function login(req, res) {
 }
 
 function logout(req, res) {
-  const isProduction = process.env.NODE_ENV === "production";
+  const requestOrigin = req.headers.origin || "";
+  const useCrossSiteCookie = requestOrigin.startsWith("https://");
 
   logAudit({
     action: "LOGOUT",
@@ -106,8 +107,8 @@ function logout(req, res) {
   res.cookie("token", "", {
     httpOnly: true,
     expires: new Date(0),
-    sameSite: isProduction ? "none" : "lax",
-    secure: isProduction,
+    sameSite: useCrossSiteCookie ? "none" : "lax",
+    secure: useCrossSiteCookie,
   });
 
   return res.status(200).json({ message: "Logged out successfully" });

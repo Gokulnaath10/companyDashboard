@@ -6,13 +6,14 @@ function generateToken(userId) {
   });
 }
 
-function setAuthCookie(res, token) {
-  const isProduction = process.env.NODE_ENV === "production";
+function setAuthCookie(req, res, token) {
+  const requestOrigin = req.headers.origin || "";
+  const useCrossSiteCookie = requestOrigin.startsWith("https://");
 
   res.cookie("token", token, {
     httpOnly: true,
-    sameSite: isProduction ? "none" : "lax",
-    secure: isProduction,
+    sameSite: useCrossSiteCookie ? "none" : "lax",
+    secure: useCrossSiteCookie,
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 }
