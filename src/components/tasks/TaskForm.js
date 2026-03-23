@@ -40,7 +40,18 @@ function TaskForm({ formData, onChange, onSubmit, onCancel, isSubmitting, isEdit
             onChange={onChange}
             placeholder="Enter description (optional)"
             rows={3}
-            style={{ resize: "vertical" }}
+            style={{
+              width: "100%",
+              padding: "11px 14px",
+              background: "var(--bg-input)",
+              border: "1.5px solid var(--border)",
+              borderRadius: "8px",
+              color: "var(--text-primary)",
+              fontFamily: "var(--font-body)",
+              fontSize: "14px",
+              outline: "none",
+              resize: "vertical",
+            }}
           />
         </label>
 

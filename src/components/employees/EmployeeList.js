@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-
 function EmployeeList({ employees, onEdit, onDelete, isDeletingId }) {
   if (!employees.length) {
     return (
@@ -34,10 +32,8 @@ function EmployeeList({ employees, onEdit, onDelete, isDeletingId }) {
           <tbody>
             {employees.map((employee) => (
               <tr key={employee._id}>
-                <td>
-                  <Link className="employee-link" to={`/dashboard/${employee._id}`}>
-                    {employee.name}
-                  </Link>
+                <td style={{ fontWeight: 600, color: "var(--text-primary)" }}>
+                  {employee.name}
                 </td>
                 <td>{employee.email}</td>
                 <td>{employee.role}</td>

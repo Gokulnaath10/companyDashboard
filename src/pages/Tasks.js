@@ -122,11 +122,11 @@ function Tasks({ onLogout }) {
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem" }}>
+        <div className="search-bar">
           {["All", "Pending", "Completed"].map((status) => (
             <button
               key={status}
-              className={filterStatus === status ? "btn-primary" : "btn-secondary"}
+              className={`filter-btn${filterStatus === status ? " active" : ""}`}
               onClick={() => setFilterStatus(status)}
             >
               {status}

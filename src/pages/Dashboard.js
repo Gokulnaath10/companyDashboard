@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Outlet, useOutlet } from "react-router-dom";
 
 import Sidebar from "../components/Sidebar";
 import { getEmployees } from "../api/employeeApi";
@@ -7,7 +6,6 @@ import { useAuth } from "../context/AuthContext";
 
 function Dashboard({ onLogout }) {
   const { user } = useAuth();
-  const outlet = useOutlet();
   const [employees, setEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -31,9 +29,6 @@ function Dashboard({ onLogout }) {
 
   const departments = [...new Set(employees.map((employee) => employee.department))];
   const activeEmployees = employees.filter((employee) => employee.status === "Active").length;
-  const averageTeamSize = departments.length
-    ? (employees.length / departments.length).toFixed(1)
-    : "0.0";
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
 
@@ -42,51 +37,39 @@ function Dashboard({ onLogout }) {
       <Sidebar onLogout={onLogout} />
 
       <div className="main-content">
-        {!outlet && (
-          <>
-            <div className="page-header">
-              <h1>
-                Good {greeting}, {user?.name?.split(" ")[0] || "there"}
-              </h1>
-              <p>Here's your company overview</p>
+        <div className="page-header">
+          <h1>
+            Good {greeting}, {user?.name?.split(" ")[0] || "there"}
+          </h1>
+          <p>Here's your company overview</p>
+        </div>
+
+        {error && <div className="feedback-banner error">{error}</div>}
+        {isLoading && <div className="feedback-banner">Loading dashboard data...</div>}
+
+        <div className="stat-grid">
+          <div className="stat-card">
+            <div className="label">Total Employees</div>
+            <div className="value">{employees.length}</div>
+            <div className="sub">Live records from the backend</div>
+          </div>
+
+          <div className="stat-card">
+            <div className="label">Departments</div>
+            <div className="value">{departments.length}</div>
+            <div className="sub">
+              {departments.length ? departments.join(", ") : "No departments yet"}
             </div>
+          </div>
 
-            {error && <div className="feedback-banner error">{error}</div>}
-            {isLoading && <div className="feedback-banner">Loading dashboard data...</div>}
-
-            <div className="stat-grid">
-              <div className="stat-card">
-                <div className="label">Total Employees</div>
-                <div className="value">{employees.length}</div>
-                <div className="sub">Live records from the backend</div>
-              </div>
-
-              <div className="stat-card">
-                <div className="label">Departments</div>
-                <div className="value">{departments.length}</div>
-                <div className="sub">
-                  {departments.length ? departments.join(", ") : "No departments yet"}
-                </div>
-              </div>
-
-              <div className="stat-card">
-                <div className="label">Active Employees</div>
-                <div className="value">{activeEmployees}</div>
-                <div className="sub">
-                  {employees.length - activeEmployees} not currently active
-                </div>
-              </div>
-
-              <div className="stat-card">
-                <div className="label">Avg. Team Size</div>
-                <div className="value">{averageTeamSize}</div>
-                <div className="sub">Employees per department</div>
-              </div>
+          <div className="stat-card">
+            <div className="label">Active Employees</div>
+            <div className="value">{activeEmployees}</div>
+            <div className="sub">
+              {employees.length - activeEmployees} not currently active
             </div>
-          </>
-        )}
-
-        <Outlet />
+          </div>
+        </div>
       </div>
     </div>
   );

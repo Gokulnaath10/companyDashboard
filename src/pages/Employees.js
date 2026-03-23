@@ -106,8 +106,6 @@ function Employees({ onLogout }) {
     setFormData(employeeInitialForm);
   }
 
-  const activeCount = employees.filter((employee) => employee.status === "Active").length;
-  const departmentCount = new Set(employees.map((employee) => employee.department)).size;
   const isEditing = Boolean(selectedEmployeeId);
 
   return (
@@ -120,25 +118,7 @@ function Employees({ onLogout }) {
           <p>MongoDB-backed CRUD records managed through your Express API.</p>
         </div>
 
-        <div className="stat-grid">
-          <div className="stat-card">
-            <div className="label">Total Employees</div>
-            <div className="value">{employees.length}</div>
-            <div className="sub">Synced from the backend</div>
-          </div>
-          <div className="stat-card">
-            <div className="label">Active Employees</div>
-            <div className="value">{activeCount}</div>
-            <div className="sub">Current active headcount</div>
-          </div>
-          <div className="stat-card">
-            <div className="label">Departments</div>
-            <div className="value">{departmentCount}</div>
-            <div className="sub">Unique departments tracked</div>
-          </div>
-        </div>
-
-        {error && <div className="feedback-banner error">{error}</div>}
+        {error &&<div className="feedback-banner error">{error}</div>}
         {isLoading && <div className="feedback-banner">Loading employees...</div>}
 
         <div className="employee-grid">

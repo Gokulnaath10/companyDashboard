@@ -5,11 +5,9 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Employees from "./pages/Employees";
-import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Audit from "./pages/Audit";
 import Profile from "./pages/Profile";
-import EmployeeDetails from "./pages/EmployeeDetails";
 import Tasks from "./pages/Tasks";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { updatePreferences } from "./api/userApi";
@@ -105,40 +103,22 @@ function AppRoutes() {
             <Dashboard onLogout={handleLogout} />
           </ProtectedRoute>
         }
-      >
-        <Route
-          path="profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
+      />
 
-        <Route
-          path=":id"
-          element={
-            <ProtectedRoute>
-              <EmployeeDetails />
-            </ProtectedRoute>
-          }
-        />
-      </Route>
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/employees"
         element={
           <ProtectedRoute roles={["admin"]}>
             <Employees onLogout={handleLogout} />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/reports"
-        element={
-          <ProtectedRoute>
-            <Reports onLogout={handleLogout} />
           </ProtectedRoute>
         }
       />

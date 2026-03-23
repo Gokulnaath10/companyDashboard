@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { updateProfile } from "../api/userApi";
+import Sidebar from "../components/Sidebar";
 
-// Profile is a nested route inside Dashboard 
-function Profile() {
+function Profile({ onLogout }) {
   const { user, refreshUser } = useAuth();
 
   const [name, setName] = useState(user?.name || "");
@@ -37,7 +37,9 @@ function Profile() {
     .slice(0, 2);
 
   return (
-    <>
+    <div className="app-layout">
+      <Sidebar onLogout={onLogout} />
+      <div className="main-content">
       <div className="page-header">
         <h1>Profile</h1>
         <p>Manage your account details</p>
@@ -119,7 +121,8 @@ function Profile() {
           Save Changes
         </button>
       </div>
-    </>
+      </div>
+    </div>
   );
 }
 

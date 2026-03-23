@@ -6,13 +6,13 @@ function TaskList({ tasks, filterStatus, onEdit, onDelete, isDeletingId }) {
 
   if (filtered.length === 0) {
     return (
-      <div className="employee-panel">
-        <div className="employee-panel-header">
-          <div>
-            <h3>Tasks</h3>
-            <p>No tasks found.</p>
-          </div>
-        </div>
+      <div className="employee-panel employee-empty-state">
+        <h3>No tasks found</h3>
+        <p>
+          {filterStatus === "All"
+            ? "Add your first task using the form."
+            : `No ${filterStatus.toLowerCase()} tasks.`}
+        </p>
       </div>
     );
   }
@@ -21,58 +21,91 @@ function TaskList({ tasks, filterStatus, onEdit, onDelete, isDeletingId }) {
     <div className="employee-panel">
       <div className="employee-panel-header">
         <div>
-          <h3>Tasks</h3>
+          <h3>Task Records</h3>
           <p>{filtered.length} task{filtered.length !== 1 ? "s" : ""} found</p>
         </div>
       </div>
 
-      <ul className="employee-list">
-        {filtered.map((task) => (
-          <li key={task._id} className="employee-item">
-            <div className="employee-info">
-              <div className="employee-name">{task.title}</div>
-              {task.description && (
-                <div className="employee-meta">{task.description}</div>
-              )}
-              <div className="employee-meta">
-                <span
-                  style={{
-                    marginRight: "0.75rem",
-                    fontWeight: 600,
-                    color: task.status === "Completed" ? "var(--color-success, #4ade80)" : "var(--color-warning, #facc15)",
-                  }}
-                >
-                  {task.status}
-                </span>
-                <span
-                  style={{
-                    color:
-                      task.priority === "High"
-                        ? "var(--color-danger, #f87171)"
-                        : task.priority === "Medium"
-                        ? "var(--color-warning, #facc15)"
-                        : "var(--color-muted, #9ca3af)",
-                  }}
-                >
-                  {task.priority} Priority
-                </span>
-              </div>
-            </div>
-            <div className="employee-actions">
-              <button className="btn-edit" onClick={() => onEdit(task)}>
-                Edit
-              </button>
-              <button
-                className="btn-delete"
-                onClick={() => onDelete(task._id)}
-                disabled={isDeletingId === task._id}
-              >
-                {isDeletingId === task._id ? "..." : "Delete"}
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <div className="employee-table-wrap">
+        <table className="employee-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((task) => (
+              <tr key={task._id}>
+                <td style={{ fontWeight: 600, color: "var(--text-primary)" }}>
+                  {task.title}
+                </td>
+                <td>{task.description || "—"}</td>
+                <td>
+                  <span
+                    className="status-pill"
+                    style={{
+                      background:
+                        task.priority === "High"
+                          ? "var(--danger-dim)"
+                          : task.priority === "Medium"
+                          ? "var(--warning-dim)"
+                          : "var(--accent-dim)",
+                      color:
+                        task.priority === "High"
+                          ? "var(--danger)"
+                          : task.priority === "Medium"
+                          ? "var(--warning)"
+                          : "var(--accent)",
+                    }}
+                  >
+                    {task.priority}
+                  </span>
+                </td>
+                <td>
+                  <span
+                    className="status-pill"
+                    style={{
+                      background:
+                        task.status === "Completed"
+                          ? "var(--accent-dim)"
+                          : "var(--warning-dim)",
+                      color:
+                        task.status === "Completed"
+                          ? "var(--accent)"
+                          : "var(--warning)",
+                    }}
+                  >
+                    {task.status}
+                  </span>
+                </td>
+                <td>
+                  <div className="employee-actions">
+                    <button
+                      className="btn-secondary"
+                      type="button"
+                      onClick={() => onEdit(task)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn-danger"
+                      type="button"
+                      onClick={() => onDelete(task._id)}
+                      disabled={isDeletingId === task._id}
+                    >
+                      {isDeletingId === task._id ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

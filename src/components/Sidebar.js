@@ -13,8 +13,7 @@ function Sidebar({ onLogout }) {
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: "◈" },
     { path: "/tasks", label: "Tasks", icon: "✓" },
-    { path: "/reports", label: "Reports", icon: "▤" },
-    { path: "/dashboard/profile", label: "Profile", icon: "◉" },
+    { path: "/profile", label: "Profile", icon: "◉" },
     { path: "/settings", label: "Settings", icon: "⚙" },
   ];
   const adminItems = [
@@ -43,7 +42,7 @@ function Sidebar({ onLogout }) {
       </ul>
 
       <div className="sidebar-user">
-        <div className="sidebar-user-info" onClick={() => navigate("/dashboard/profile")}>
+        <div className="sidebar-user-info" onClick={() => navigate("/profile")}>
           <div className="user-avatar">{initials}</div>
           <div style={{ overflow: "hidden" }}> {/*to prevent the mailid or name overflow*/}
             <div className="user-name">{user?.name || "User"}</div>
