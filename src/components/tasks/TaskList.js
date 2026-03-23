@@ -1,14 +1,33 @@
-function TaskList({ tasks, filterStatus, onEdit, onDelete, isDeletingId }) {
+function TaskList({ tasks, filterStatus, onFilterChange, onEdit, onDelete, isDeletingId }) {
   const filtered =
     filterStatus === "All"
       ? tasks
       : tasks.filter((task) => task.status === filterStatus);
 
+  const filterBar = (
+    <div className="search-bar" style={{ marginBottom: 16 }}>
+      {["All", "Pending", "Completed"].map((status) => (
+        <button
+          key={status}
+          className={`filter-btn${filterStatus === status ? " active" : ""}`}
+          onClick={() => onFilterChange(status)}
+        >
+          {status}
+        </button>
+      ))}
+    </div>
+  );
+
   if (filtered.length === 0) {
     return (
-      <div className="employee-panel employee-empty-state">
-        <h3>No tasks found</h3>
-        <p>
+      <div className="employee-panel">
+        <div className="employee-panel-header">
+          <div>
+            <h3>Task Records</h3>
+          </div>
+        </div>
+        {filterBar}
+        <p style={{ color: "var(--text-secondary)", fontSize: 14 }}>
           {filterStatus === "All"
             ? "Add your first task using the form."
             : `No ${filterStatus.toLowerCase()} tasks.`}
@@ -25,6 +44,7 @@ function TaskList({ tasks, filterStatus, onEdit, onDelete, isDeletingId }) {
           <p>{filtered.length} task{filtered.length !== 1 ? "s" : ""} found</p>
         </div>
       </div>
+      {filterBar}
 
       <div className="employee-table-wrap">
         <table className="employee-table">

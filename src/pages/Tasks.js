@@ -122,18 +122,6 @@ function Tasks({ onLogout }) {
           </div>
         </div>
 
-        <div className="search-bar">
-          {["All", "Pending", "Completed"].map((status) => (
-            <button
-              key={status}
-              className={`filter-btn${filterStatus === status ? " active" : ""}`}
-              onClick={() => setFilterStatus(status)}
-            >
-              {status}
-            </button>
-          ))}
-        </div>
-
         {error && <div className="feedback-banner error">{error}</div>}
         {isLoading && <div className="feedback-banner">Loading tasks...</div>}
 
@@ -149,6 +137,7 @@ function Tasks({ onLogout }) {
           <TaskList
             tasks={tasks}
             filterStatus={filterStatus}
+            onFilterChange={setFilterStatus}
             onEdit={handleEdit}
             onDelete={handleDelete}
             isDeletingId={isDeletingId}
